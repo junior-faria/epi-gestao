@@ -1,4 +1,3 @@
-[index (1).html](https://github.com/user-attachments/files/25742099/index.1.html)
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -207,7 +206,69 @@ function App() {
     showToast("WhatsApp aberto! 📲");
   }
 
-  function removerUser(id) {
+  function gerarPDF() {
+    const hoje = new Date().toLocaleDateString("pt-BR");
+    const criticosCount = epis.filter(e => e.estoque < e.minimo).length;
+    const linhas = epis.map(e => {
+      const sv = (() => {
+        if (!e.validade) return { label: "—", cor: "#a8c8a0" };
+        const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
+        const d = new Date(e.validade + "T00:00:00");
+        const dias = Math.round((d - hoje2) / 86400000);
+        if (dias < 0)   return { label: "VENCIDO",          cor: "#e74c3c" };
+        if (dias <= 90) return { label: "Vence em " + dias + "d", cor: "#f39c12" };
+        return { label: "Válido", cor: "#27ae60" };
+      })();
+      const status = e.estoque < e.minimo ? "CRÍTICO" : "OK";
+      const cor    = e.estoque < e.minimo ? "#e74c3c" : "#27ae60";
+      const datVal = e.validade ? e.validade.split("-").reverse().join("/") : "—";
+      return "<tr><td>" + e.img + " " + e.nome + "</td><td>" + (e.codigo||"—") + "</td><td>" + e.categoria + "</td><td style='font-weight:700;color:" + cor + "'>" + status + "</td><td style='text-align:center'>" + e.estoque + " " + e.unidade + "</td><td style='text-align:center'>" + e.minimo + " " + e.unidade + "</td><td>" + (e.ca||"—") + "</td><td style='color:" + sv.cor + ";font-weight:600'>" + datVal + "<br/><small>" + sv.label + "</small></td></tr>";
+    }).join("");
+
+    const vencidos = epis.filter(e => {
+      if (!e.validade) return false;
+      const d = new Date(e.validade + "T00:00:00");
+      const hoje2 = new Date(); hoje2.setHours(0,0,0,0);
+      return d < hoje2;
+    }).length;
+
+    const html = "<!DOCTYPE html><html lang='pt-BR'><head><meta charset='UTF-8'/>"
+      + "<title>Relatório de EPIs — Sementes Tormenta</title>"
+      + "<style>"
+      + "body{font-family:Arial,sans-serif;margin:0;padding:24px;color:#222}"
+      + "h1{color:#1a5c1a;font-size:22px;margin-bottom:2px}"
+      + ".sub{color:#555;font-size:13px;margin-bottom:20px}"
+      + ".resumo{display:flex;gap:16px;margin-bottom:24px;flex-wrap:wrap}"
+      + ".card-r{background:#f4f9f4;border:1px solid #c8e6c8;border-radius:10px;padding:12px 20px;min-width:120px;text-align:center}"
+      + ".card-r .num{font-size:28px;font-weight:900;color:#1a5c1a}"
+      + ".card-r .lbl{font-size:11px;color:#555;margin-top:2px}"
+      + ".critico .num{color:#c0392b}"
+      + "table{width:100%;border-collapse:collapse;font-size:12px}"
+      + "th{background:#1a5c1a;color:#fff;padding:9px 10px;text-align:left}"
+      + "td{padding:8px 10px;border-bottom:1px solid #e0e0e0;vertical-align:middle}"
+      + "tr:nth-child(even) td{background:#f9f9f9}"
+      + ".footer{margin-top:24px;font-size:11px;color:#888;text-align:center}"
+      + "@media print{body{padding:0}}"
+      + "</style></head><body>"
+      + "<h1>🌱 Sementes Tormenta — Relatório de EPIs</h1>"
+      + "<div class='sub'>Gerado em: " + hoje + " &nbsp;|&nbsp; Total: " + epis.length + " &nbsp;|&nbsp; Críticos: " + criticosCount + "</div>"
+      + "<div class='resumo'>"
+      + "<div class='card-r'><div class='num'>" + epis.length + "</div><div class='lbl'>Total EPIs</div></div>"
+      + "<div class='card-r critico'><div class='num'>" + criticosCount + "</div><div class='lbl'>Críticos</div></div>"
+      + "<div class='card-r'><div class='num'>" + (epis.length - criticosCount) + "</div><div class='lbl'>Estoque OK</div></div>"
+      + "<div class='card-r'><div class='num'>" + vencidos + "</div><div class='lbl'>Vencidos</div></div>"
+      + "</div>"
+      + "<table><thead><tr><th>EPI</th><th>Código</th><th>Categoria</th><th>Status</th><th>Estoque</th><th>Mínimo</th><th>CA</th><th>Validade</th></tr></thead>"
+      + "<tbody>" + linhas + "</tbody></table>"
+      + "<div class='footer'>Sementes Tormenta &nbsp;|&nbsp; Setor de Segurança do Trabalho &nbsp;|&nbsp; " + hoje + "</div>"
+      + "</body></html>";
+
+    const w = window.open("", "_blank");
+    w.document.open();
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 800);
+  }
     if (!window.confirm("Remover usuário?")) return;
     setUsuarios(prev => prev.filter(u => u.id !== id));
     showToast("Usuário removido");
@@ -600,67 +661,7 @@ function App() {
                   <div style={{ fontSize: 13, color: "#a8c8a0", marginBottom: 18 }}>
                     Clique em <b style={{ color: "#e8eaf0" }}>Imprimir / Salvar como PDF</b> para exportar o relatório completo do estoque de EPIs.
                   </div>
-                  <Btn onClick={() => {
-                    const hoje = new Date().toLocaleDateString("pt-BR");
-                    const linhas = epis.map(e => {
-                      const sv = (() => {
-                        if (!e.validade) return { label: "—", cor: "#a8c8a0" };
-                        const d = new Date(e.validade+"T00:00:00");
-                        const dias = Math.round((d - new Date().setHours(0,0,0,0)) / 86400000);
-                        if (dias < 0)   return { label: "VENCIDO", cor: "#e74c3c" };
-                        if (dias <= 90) return { label: `Vence em ${dias}d`, cor: "#f39c12" };
-                        return { label: "Válido", cor: "#27ae60" };
-                      })();
-                      const status = e.estoque < e.minimo ? "CRÍTICO" : "OK";
-                      const cor = e.estoque < e.minimo ? "#e74c3c" : "#27ae60";
-                      return `<tr>
-                        <td>${e.img} ${e.nome}</td>
-                        <td>${e.codigo || "—"}</td>
-                        <td>${e.categoria}</td>
-                        <td style="font-weight:700;color:${cor}">${status}</td>
-                        <td style="text-align:center">${e.estoque} ${e.unidade}</td>
-                        <td style="text-align:center">${e.minimo} ${e.unidade}</td>
-                        <td>${e.ca || "—"}</td>
-                        <td style="color:${sv.cor};font-weight:600">${e.validade ? e.validade.split("-").reverse().join("/") : "—"}<br/><small>${sv.label}</small></td>
-                      </tr>`;
-                    }).join("");
-                    const criticosCount = epis.filter(e => e.estoque < e.minimo).length;
-                    const w = window.open("", "_blank");
-                    w.document.write(`<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"/>
-                    <title>Relatório de EPIs — Sementes Tormenta</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; margin: 0; padding: 24px; color: #222; }
-                      h1 { color: #1a5c1a; font-size: 22px; margin-bottom: 2px; }
-                      .sub { color: #555; font-size: 13px; margin-bottom: 20px; }
-                      .resumo { display: flex; gap: 16px; margin-bottom: 24px; flex-wrap: wrap; }
-                      .card-r { background: #f4f9f4; border: 1px solid #c8e6c8; border-radius: 10px; padding: 12px 20px; min-width: 120px; text-align: center; }
-                      .card-r .num { font-size: 28px; font-weight: 900; color: #1a5c1a; }
-                      .card-r .label { font-size: 11px; color: #555; margin-top: 2px; }
-                      .card-critico .num { color: #c0392b; }
-                      table { width: 100%; border-collapse: collapse; font-size: 12px; }
-                      th { background: #1a5c1a; color: #fff; padding: 9px 10px; text-align: left; }
-                      td { padding: 8px 10px; border-bottom: 1px solid #e0e0e0; vertical-align: middle; }
-                      tr:nth-child(even) td { background: #f9f9f9; }
-                      .footer { margin-top: 24px; font-size: 11px; color: #888; text-align: center; }
-                      @media print { body { padding: 0; } }
-                    </style></head><body>
-                    <h1>🌱 Sementes Tormenta — Relatório de EPIs</h1>
-                    <div class="sub">Gerado em: ${hoje} &nbsp;|&nbsp; Total de EPIs: ${epis.length} &nbsp;|&nbsp; Críticos: ${criticosCount}</div>
-                    <div class="resumo">
-                      <div class="card-r"><div class="num">${epis.length}</div><div class="label">Total EPIs</div></div>
-                      <div class="card-r card-critico"><div class="num">${criticosCount}</div><div class="label">Críticos</div></div>
-                      <div class="card-r"><div class="num">${epis.filter(e=>e.estoque>=e.minimo).length}</div><div class="label">Estoque OK</div></div>
-                      <div class="card-r"><div class="num">${epis.filter(e=>{ if(!e.validade) return false; const dias=Math.round((new Date(e.validade+"T00:00:00")-new Date().setHours(0,0,0,0))/86400000); return dias<0; }).length}</div><div class="label">Vencidos</div></div>
-                    </div>
-                    <table>
-                      <thead><tr><th>EPI</th><th>Código</th><th>Categoria</th><th>Status</th><th>Estoque</th><th>Mínimo</th><th>CA</th><th>Validade</th></tr></thead>
-                      <tbody>${linhas}</tbody>
-                    </table>
-                    <div class="footer">Sementes Tormenta &nbsp;|&nbsp; Setor de Segurança do Trabalho &nbsp;|&nbsp; ${hoje}</div>
-                    <script>window.onload = () => window.print();</script>
-                    </body></html>`);
-                    w.document.close();
-                  }} style={{ padding: "13px 28px", fontSize: 15, background: "linear-gradient(90deg,#e74c3c,#8e44ad)", marginRight: 10 }}>
+                  <Btn onClick={gerarPDF} style={{ padding: "13px 28px", fontSize: 15, background: "linear-gradient(90deg,#e74c3c,#8e44ad)", marginRight: 10 }}>
                     🖨️ IMPRIMIR / SALVAR PDF
                   </Btn>
                 </div>
