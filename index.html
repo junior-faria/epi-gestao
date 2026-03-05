@@ -20,7 +20,7 @@ select option{background:#1a2e1a}
 .modal-box{background:#0d1f0d;border-radius:20px;padding:32px 28px;width:90%;max-width:400px;box-shadow:0 8px 48px #000c}
 .card{background:rgba(10,20,12,.72);border:1px solid rgba(80,160,60,.18);border-radius:18px;padding:18px;backdrop-filter:blur(12px)}
 .btn{border:none;cursor:pointer;font-weight:700;font-size:14px;border-radius:10px;padding:10px 18px;color:#fff;transition:opacity .2s}
-.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn[disabled]{opacity:.5;cursor:not-allowed}
 .inp{width:100%;background:rgba(15,20,15,.6);border:1px solid rgba(80,160,60,.25);border-radius:10px;color:#e8eaf0;font-size:14px;padding:10px 14px;outline:none}
 .lbl{font-size:13px;color:#a8c8a0;display:block;margin-bottom:6px}
 .sidebar{display:flex;flex-direction:column;gap:4px;background:rgba(10,20,12,.72);border-radius:14px;padding:6px;min-width:178px;flex-shrink:0}
@@ -136,18 +136,24 @@ var useEffect=React.useEffect;
 
   // Carrega dados da nuvem ao iniciar
   useEffect(function(){
-    setSincing(true);
-    fetch(JSONBIN_URL+"/latest",{headers:{"X-Master-Key":JSONBIN_KEY}})
-      .then(function(r){return r.json();})
-      .then(function(d){
-        if(d.record){
-          if(d.record.epis&&d.record.epis.length>0){setEpis(d.record.epis);saveLS("epigestao_epis",d.record.epis);}
-          if(d.record.users&&d.record.users.length>0){setUsers(d.record.users);saveLS("epigestao_users",d.record.users);}
-          setLastSync(new Date().toLocaleTimeString("pt-BR"));
-        }
-        setSincing(false);
-      })
-      .catch(function(){setSincing(false);});
+    function carregarNuvem(){
+      setSincing(true);
+      fetch(JSONBIN_URL+"/latest",{headers:{"X-Master-Key":JSONBIN_KEY}})
+        .then(function(r){return r.json();})
+        .then(function(d){
+          if(d.record){
+            if(d.record.epis&&d.record.epis.length>0){setEpis(d.record.epis);saveLS("epigestao_epis",d.record.epis);}
+            if(d.record.users&&d.record.users.length>0){setUsers(d.record.users);saveLS("epigestao_users",d.record.users);}
+            setLastSync(new Date().toLocaleTimeString("pt-BR"));
+          }
+          setSincing(false);
+        })
+        .catch(function(){setSincing(false);});
+    }
+    carregarNuvem();
+    // Atualiza automaticamente a cada 30 segundos
+    var interval=setInterval(carregarNuvem,30000);
+    return function(){clearInterval(interval);};
   },[]);
 
   // Salva na nuvem sempre que epis ou users mudam (com debounce de 1s)
@@ -503,10 +509,27 @@ var useEffect=React.useEffect;
       h("div",{style:{textAlign:"center",marginBottom:22}},
         h("div",{style:{fontSize:"clamp(20px,5vw,34px)",fontWeight:900,letterSpacing:2,textTransform:"uppercase",fontFamily:"Georgia,serif"}},"🌱 Sementes Tormenta"),
         h("div",{style:{fontSize:12,color:"#a8c8a0",letterSpacing:4,textTransform:"uppercase",marginTop:4}},"Gestão de EPIs"),
-        h("div",{style:{fontSize:11,color:sincing?"#f39c12":"#1abc9c",marginTop:6,display:"flex",alignItems:"center",justifyContent:"center",gap:6}},
+        h("div",{style:{fontSize:11,color:sincing?"#f39c12":"#1abc9c",marginTop:6,display:"flex",alignItems:"center",justifyContent:"center",gap:10}},
           sincing
-            ?h("span",null,"🔄 Sincronizando com a nuvem...")
-            :h("span",null,"☁️ Nuvem sincronizada"+(lastSync?" às "+lastSync:""))
+            ?h("span",null,"🔄 Sincronizando...")
+            :h("span",null,"☁️ Sincronizado"+(lastSync?" às "+lastSync:"")),
+          !sincing&&h("button",{
+            onClick:function(){
+              setSincing(true);
+              fetch(JSONBIN_URL+"/latest",{headers:{"X-Master-Key":JSONBIN_KEY}})
+                .then(function(r){return r.json();})
+                .then(function(d){
+                  if(d.record){
+                    if(d.record.epis&&d.record.epis.length>0){setEpis(d.record.epis);saveLS("epigestao_epis",d.record.epis);}
+                    if(d.record.users&&d.record.users.length>0){setUsers(d.record.users);saveLS("epigestao_users",d.record.users);}
+                    setLastSync(new Date().toLocaleTimeString("pt-BR"));
+                  }
+                  setSincing(false);toast_("Dados atualizados! ✅");
+                })
+                .catch(function(){setSincing(false);});
+            },
+            style:{background:"rgba(26,188,156,.15)",border:"1px solid rgba(26,188,156,.3)",color:"#1abc9c",borderRadius:8,padding:"2px 10px",fontSize:11,cursor:"pointer",fontWeight:600}
+          },"↻ Atualizar")
         )
       ),
       h("div",{style:C.flex({gap:16,alignItems:"flex-start"})},
