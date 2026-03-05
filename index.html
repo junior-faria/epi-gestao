@@ -300,41 +300,51 @@ function App(){
       return s;
     }
 
-    var BOM="\uFEFF";
     var SEP=";";
     var linhas=[];
-    linhas.push(["sep=;"].join(""));
-    linhas.push([esc("Relatório de EPIs - Sementes Tormenta"),esc("Gerado em: "+hoje),"","","","","",""].join(SEP));
+    linhas.push("sep=;");
+    linhas.push([esc("Relatorio de EPIs - Sementes Tormenta"),esc("Gerado em: "+hoje)].join(SEP));
     linhas.push("");
-    linhas.push([esc("Total EPIs"),esc(epis.length),"",esc("Críticos"),esc(crit),"",esc("Vencidos"),esc(venc)].join(SEP));
+    linhas.push([esc("Total EPIs"),esc(epis.length),"",esc("Criticos"),esc(crit),"",esc("Vencidos"),esc(venc)].join(SEP));
     linhas.push("");
-    linhas.push([esc("EPI"),esc("Código"),esc("Categoria"),esc("Status"),esc("Estoque"),esc("Unidade"),esc("Mínimo"),esc("CA"),esc("Validade"),esc("Situação Validade")].join(SEP));
+    linhas.push([esc("EPI"),esc("Codigo"),esc("Categoria"),esc("Status"),esc("Estoque"),esc("Unidade"),esc("Minimo"),esc("CA"),esc("Validade"),esc("Situacao Validade")].join(SEP));
 
     epis.forEach(function(e){
       var sv=svStatus(e.val);
-      var st=e.est<e.min?"CRÍTICO":"OK";
+      var st=e.est<e.min?"CRITICO":"OK";
+      // Normalize accented chars
+      function norm(s){
+        return String(s||"")
+          .replace(/[àáâãä]/g,"a").replace(/[ÀÁÂÃÄ]/g,"A")
+          .replace(/[èéêë]/g,"e").replace(/[ÈÉÊË]/g,"E")
+          .replace(/[ìíîï]/g,"i").replace(/[ÌÍÎÏ]/g,"I")
+          .replace(/[òóôõö]/g,"o").replace(/[ÒÓÔÕÖ]/g,"O")
+          .replace(/[ùúûü]/g,"u").replace(/[ÙÚÛÜ]/g,"U")
+          .replace(/[ç]/g,"c").replace(/[Ç]/g,"C")
+          .replace(/[ñ]/g,"n").replace(/[Ñ]/g,"N");
+      }
       linhas.push([
-        esc(e.nome),
+        esc(norm(e.nome)),
         esc(e.cod||""),
-        esc(e.cat),
+        esc(norm(e.cat)),
         esc(st),
         esc(e.est),
         esc(e.un),
         esc(e.min),
         esc(e.ca||""),
         esc(fmtDate(e.val)),
-        esc(sv?sv.label:"")
+        esc(sv?norm(sv.label):"")
       ].join(SEP));
     });
 
-    var csv=BOM+linhas.join("\r\n");
-    var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
-    var url=URL.createObjectURL(blob);
+    var csv=linhas.join("\r\n");
+    // Use data URI to avoid encoding issues
+    var uri="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);
     var a=document.createElement("a");
-    a.href=url;
+    a.href=uri;
     a.download="relatorio-epis-"+new Date().toISOString().slice(0,10)+".csv";
     document.body.appendChild(a);a.click();
-    document.body.removeChild(a);URL.revokeObjectURL(url);
+    document.body.removeChild(a);
     toast_("Arquivo Excel baixado! 📊");
   }
 
