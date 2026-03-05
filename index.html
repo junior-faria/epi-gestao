@@ -293,39 +293,46 @@ function App(){
       var d=new Date(e.val+"T00:00:00"),h2=new Date();h2.setHours(0,0,0,0);return d<h2;
     }).length;
 
+    function esc(v){
+      var s=String(v||"");
+      if(s.indexOf(";")>-1||s.indexOf('"')>-1||s.indexOf("\n")>-1)
+        return '"'+s.replace(/"/g,'""')+'"';
+      return s;
+    }
+
     var BOM="\uFEFF";
-    // Each cell separated by \t, each row by \n
-    var linhas=[
-      ["Relatório de EPIs - Sementes Tormenta","","","","","","Gerado em:"+hoje],
-      [],
-      ["Total EPIs",""+epis.length,"","Críticos",""+crit,"","Vencidos",""+venc],
-      [],
-      ["EPI","Código","Categoria","Status","Estoque","Unidade","Mínimo","CA","Validade","Situação Validade"]
-    ];
+    var SEP=";";
+    var linhas=[];
+    linhas.push(["sep=;"].join(""));
+    linhas.push([esc("Relatório de EPIs - Sementes Tormenta"),esc("Gerado em: "+hoje),"","","","","",""].join(SEP));
+    linhas.push("");
+    linhas.push([esc("Total EPIs"),esc(epis.length),"",esc("Críticos"),esc(crit),"",esc("Vencidos"),esc(venc)].join(SEP));
+    linhas.push("");
+    linhas.push([esc("EPI"),esc("Código"),esc("Categoria"),esc("Status"),esc("Estoque"),esc("Unidade"),esc("Mínimo"),esc("CA"),esc("Validade"),esc("Situação Validade")].join(SEP));
 
     epis.forEach(function(e){
       var sv=svStatus(e.val);
       var st=e.est<e.min?"CRÍTICO":"OK";
       linhas.push([
-        e.nome,
-        e.cod||"",
-        e.cat,
-        st,
-        ""+e.est,
-        e.un,
-        ""+e.min,
-        e.ca||"",
-        fmtDate(e.val),
-        sv?sv.label:""
-      ]);
+        esc(e.nome),
+        esc(e.cod||""),
+        esc(e.cat),
+        esc(st),
+        esc(e.est),
+        esc(e.un),
+        esc(e.min),
+        esc(e.ca||""),
+        esc(fmtDate(e.val)),
+        esc(sv?sv.label:"")
+      ].join(SEP));
     });
 
-    var csv=BOM+linhas.map(function(row){return row.join("\t");}).join("\n");
-    var blob=new Blob([csv],{type:"application/vnd.ms-excel;charset=utf-8"});
+    var csv=BOM+linhas.join("\r\n");
+    var blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
     var url=URL.createObjectURL(blob);
     var a=document.createElement("a");
     a.href=url;
-    a.download="relatorio-epis-"+new Date().toISOString().slice(0,10)+".xls";
+    a.download="relatorio-epis-"+new Date().toISOString().slice(0,10)+".csv";
     document.body.appendChild(a);a.click();
     document.body.removeChild(a);URL.revokeObjectURL(url);
     toast_("Arquivo Excel baixado! 📊");
