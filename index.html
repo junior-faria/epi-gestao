@@ -100,10 +100,20 @@ function Modal(props){
   );
 }
 
+var JSONBIN_ID="69a982bcae596e708f620dd8";
+var JSONBIN_KEY="$2a$10$eT36EDacY/XcA3YpTloSgewBZYVufzCniBOSLe6HMgXJq3noXRhrG";
+var JSONBIN_URL="https://api.jsonbin.io/v3/b/"+JSONBIN_ID;
+
+function loadLS(key,def){try{var v=localStorage.getItem(key);return v?JSON.parse(v):def;}catch(e){return def;}}
+function saveLS(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){}}
+
 function App(){
-  var s=useState; // alias
-  var epis=s(EPIS0),setEpis=epis[1];epis=epis[0];
-  var users=s(USERS0),setUsers=users[1];users=users[0];
+var useEffect=React.useEffect;
+  var s=useState;
+  var epis=s(function(){return loadLS("epigestao_epis",EPIS0);}),setEpis=epis[1];epis=epis[0];
+  var users=s(function(){return loadLS("epigestao_users",USERS0);}),setUsers=users[1];users=users[0];
+  var sincing=s(false),setSincing=sincing[1];sincing=sincing[0];
+  var lastSync=s(""),setLastSync=lastSync[1];lastSync=lastSync[0];
   var aba=s("estoque"),setAba=aba[1];aba=aba[0];
   var toast=s(null),setToast=toast[1];toast=toast[0];
   var mRet=s(null),setMRet=mRet[1];mRet=mRet[0];
@@ -124,14 +134,80 @@ function App(){
 
   var criticos=epis.filter(function(e){return e.est<e.min;});
 
+  // Carrega dados da nuvem ao iniciar
+  useEffect(function(){
+    setSincing(true);
+    fetch(JSONBIN_URL+"/latest",{headers:{"X-Master-Key":JSONBIN_KEY}})
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.record){
+          if(d.record.epis&&d.record.epis.length>0){setEpis(d.record.epis);saveLS("epigestao_epis",d.record.epis);}
+          if(d.record.users&&d.record.users.length>0){setUsers(d.record.users);saveLS("epigestao_users",d.record.users);}
+          setLastSync(new Date().toLocaleTimeString("pt-BR"));
+        }
+        setSincing(false);
+      })
+      .catch(function(){setSincing(false);});
+  },[]);
+
+  // Salva na nuvem sempre que epis ou users mudam (com debounce de 1s)
+  var syncTimer=React.useRef(null);
+  function syncNuvem(newEpis,newUsers){
+    saveLS("epigestao_epis",newEpis||epis);
+    saveLS("epigestao_users",newUsers||users);
+    if(syncTimer.current)clearTimeout(syncTimer.current);
+    syncTimer.current=setTimeout(function(){
+      setSincing(true);
+      fetch(JSONBIN_URL,{
+        method:"PUT",
+        headers:{"Content-Type":"application/json","X-Master-Key":JSONBIN_KEY},
+        body:JSON.stringify({epis:newEpis||epis,users:newUsers||users})
+      })
+      .then(function(){setLastSync(new Date().toLocaleTimeString("pt-BR"));setSincing(false);})
+      .catch(function(){setSincing(false);});
+    },1000);
+  }
+
+  function exportarBackup(){
+    var dados={epis:epis,users:users,data:new Date().toISOString()};
+    var uri="data:application/json;charset=utf-8,"+encodeURIComponent(JSON.stringify(dados,null,2));
+    var a=document.createElement("a");
+    a.href=uri;a.download="backup-epis-"+new Date().toISOString().slice(0,10)+".json";
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    toast_("Backup exportado! 💾");
+  }
+
+  function importarBackup(e){
+    var file=e.target.files[0];if(!file)return;
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      try{
+        var dados=JSON.parse(ev.target.result);
+        if(dados.epis&&Array.isArray(dados.epis)){setEpis(dados.epis);}
+        if(dados.users&&Array.isArray(dados.users)){setUsers(dados.users);}
+        toast_("Backup restaurado com sucesso! ✅");
+      }catch(err){toast_("Erro ao restaurar backup ⚠️");}
+    };
+    reader.readAsText(file);
+  }
+
+  function limparDados(){
+    if(!confirm("Isso apagará TODOS os dados e voltará ao padrão. Tem certeza?"))return;
+    setEpis(EPIS0);setUsers(USERS0);
+    saveLS("epigestao_epis",EPIS0);saveLS("epigestao_users",USERS0);
+    toast_("Dados resetados ✅");
+  }
+
   function toast_(msg){setToast(msg);setTimeout(function(){setToast(null);},3000);}
 
   function retirar(id,q){
-    setEpis(function(p){return p.map(function(e){return e.id===id?Object.assign({},e,{est:Math.max(0,e.est-q)}):e;});});
+    var novo=epis.map(function(e){return e.id===id?Object.assign({},e,{est:Math.max(0,e.est-q)}):e;});
+    setEpis(novo);syncNuvem(novo,null);
     toast_(q+"x retirado(s) ✅");setMRet(null);setQRet(1);
   }
   function entrar(id,q){
-    setEpis(function(p){return p.map(function(e){return e.id===id?Object.assign({},e,{est:e.est+q}):e;});});
+    var novo=epis.map(function(e){return e.id===id?Object.assign({},e,{est:e.est+q}):e;});
+    setEpis(novo);syncNuvem(novo,null);
     toast_("+"+q+" adicionado(s) ✅");setMEnt(null);setQEnt(1);
   }
   function salvarEpi(){
@@ -139,13 +215,15 @@ function App(){
     if(!novoEpi.nome.trim())e.nome="Nome obrigatório";
     if(novoEpi.min<=0)e.min="Deve ser > 0";
     setErrEpi(e);if(Object.keys(e).length)return;
-    setEpis(function(p){return p.concat([Object.assign({},novoEpi,{id:Date.now()})]);});
+    var novo=epis.concat([Object.assign({},novoEpi,{id:Date.now()})]);
+    setEpis(novo);syncNuvem(novo,null);
     toast_(novoEpi.nome+" cadastrado! 🎉");
     setNovoEpi(EPI0);setErrEpi({});setAba("estoque");
   }
   function excluirEpi(id){
     if(!confirm("Excluir este EPI?"))return;
-    setEpis(function(p){return p.filter(function(e){return e.id!==id;});});toast_("EPI removido");
+    var novo=epis.filter(function(e){return e.id!==id;});
+    setEpis(novo);syncNuvem(novo,null);toast_("EPI removido");
   }
   function gerarMsg(){
     var linhas=criticos.map(function(e){
@@ -166,7 +244,8 @@ function App(){
     var av=novoUsr.nome.split(" ").map(function(p){return p[0];}).join("").slice(0,2).toUpperCase();
     var cor=CORES[Math.floor(Math.random()*CORES.length)];
     var novo=Object.assign({},novoUsr,{id:Date.now(),status:"pendente",av:av,cor:cor});
-    setUsers(function(p){return p.concat([novo]);});setNovoUsr(USR0);setErrUsr({});
+    var novos=users.concat([novo]);
+    setUsers(novos);syncNuvem(null,novos);setNovoUsr(USR0);setErrUsr({});
     var perfis={admin:"Administrador",editor:"Editor",visualizador:"Visualizador"};
     var appLink="https://junior-faria.github.io/epi-gestao/";
     var msg="Ola "+novo.nome+"! 👷\n\nVoce foi convidado para acessar o sistema de *Gestao de EPIs* da Sementes Tormenta com perfil de *"+(perfis[novo.perfil]||novo.perfil)+"*.\n\n🔗 Acesse o aplicativo pelo link:\n"+appLink+"\n\nAtenciosamente,\nSetor de Seguranca do Trabalho 🌱";
@@ -184,10 +263,12 @@ function App(){
   }
   function removerUsr(id){
     if(!confirm("Remover usuario?"))return;
-    setUsers(function(p){return p.filter(function(u){return u.id!==id;});});toast_("Usuario removido");
+    var novos=users.filter(function(u){return u.id!==id;});
+    setUsers(novos);syncNuvem(null,novos);toast_("Usuario removido");
   }
   function toggleUsr(id){
-    setUsers(function(p){return p.map(function(u){return u.id===id?Object.assign({},u,{status:u.status==="ativo"?"inativo":"ativo"}):u;});});
+    var novos=users.map(function(u){return u.id===id?Object.assign({},u,{status:u.status==="ativo"?"inativo":"ativo"}):u;});
+    setUsers(novos);syncNuvem(null,novos);
   }
 
   function handleImportFile(e){
@@ -259,13 +340,9 @@ function App(){
   }
 
   function confirmarImport(modo){
-    if(modo==="substituir"){
-      setEpis(importPreview);
-    } else {
-      setEpis(function(prev){return prev.concat(importPreview);});
-    }
-    setImportOk(true);
-    setImportPreview([]);
+    var novos=modo==="substituir"?importPreview:epis.concat(importPreview);
+    setEpis(novos);syncNuvem(novos,null);
+    setImportOk(true);setImportPreview([]);
     toast_(""+importPreview.length+" EPIs importados! ✅");
     setTimeout(function(){setAba("estoque");},1200);
   }
@@ -425,7 +502,12 @@ function App(){
     h("div",{style:{position:"relative",zIndex:1,maxWidth:1020,margin:"0 auto",padding:"28px 14px 60px"}},
       h("div",{style:{textAlign:"center",marginBottom:22}},
         h("div",{style:{fontSize:"clamp(20px,5vw,34px)",fontWeight:900,letterSpacing:2,textTransform:"uppercase",fontFamily:"Georgia,serif"}},"🌱 Sementes Tormenta"),
-        h("div",{style:{fontSize:12,color:"#a8c8a0",letterSpacing:4,textTransform:"uppercase",marginTop:4}},"Gestão de EPIs")
+        h("div",{style:{fontSize:12,color:"#a8c8a0",letterSpacing:4,textTransform:"uppercase",marginTop:4}},"Gestão de EPIs"),
+        h("div",{style:{fontSize:11,color:sincing?"#f39c12":"#1abc9c",marginTop:6,display:"flex",alignItems:"center",justifyContent:"center",gap:6}},
+          sincing
+            ?h("span",null,"🔄 Sincronizando com a nuvem...")
+            :h("span",null,"☁️ Nuvem sincronizada"+(lastSync?" às "+lastSync:""))
+        )
       ),
       h("div",{style:C.flex({gap:16,alignItems:"flex-start"})},
         // SIDEBAR
@@ -575,13 +657,13 @@ function App(){
                       h("div",{style:{fontSize:11,color:"#a8c8a0",marginBottom:4}},"Código"),
                       h("input",{className:"inp",style:{width:120,padding:"7px 10px",fontSize:13,borderColor:"rgba(52,152,219,.4)"},
                         placeholder:"EPI-001",value:epi.cod||"",
-                        onChange:function(ev){var val=ev.target.value;setEpis(function(p){return p.map(function(ep){return ep.id===epi.id?Object.assign({},ep,{cod:val}):ep;});});}})
+                        onChange:function(ev){var val=ev.target.value;var novo=epis.map(function(ep){return ep.id===epi.id?Object.assign({},ep,{cod:val}):ep;});setEpis(novo);syncNuvem(novo,null);}})
                     ),
                     h("div",null,
                       h("div",{style:{fontSize:11,color:"#a8c8a0",marginBottom:4}},"CA"),
                       h("input",{className:"inp",style:{width:100,padding:"7px 10px",fontSize:13},
                         placeholder:"31469",value:epi.ca||"",
-                        onChange:function(ev){var val=ev.target.value;setEpis(function(p){return p.map(function(ep){return ep.id===epi.id?Object.assign({},ep,{ca:val}):ep;});})}})
+                        onChange:function(ev){var val=ev.target.value;var novo=epis.map(function(ep){return ep.id===epi.id?Object.assign({},ep,{ca:val}):ep;});setEpis(novo);syncNuvem(novo,null);}})
                     )
                   )
                 );
