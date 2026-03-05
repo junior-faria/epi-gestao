@@ -118,6 +118,9 @@ function App(){
   var errUsr=s({}),setErrUsr=errUsr[1];errUsr=errUsr[0];
   var msgC=s(""),setMsgC=msgC[1];msgC=msgC[0];
   var enviado=s(false),setEnviado=enviado[1];enviado=enviado[0];
+  var importPreview=s([]),setImportPreview=importPreview[1];importPreview=importPreview[0];
+  var importErro=s(""),setImportErro=importErro[1];importErro=importErro[0];
+  var importOk=s(false),setImportOk=importOk[1];importOk=importOk[0];
 
   var criticos=epis.filter(function(e){return e.est<e.min;});
 
@@ -187,6 +190,101 @@ function App(){
     setUsers(function(p){return p.map(function(u){return u.id===id?Object.assign({},u,{status:u.status==="ativo"?"inativo":"ativo"}):u;});});
   }
 
+  function handleImportFile(e){
+    var file=e.target.files[0];
+    if(!file){return;}
+    setImportErro("");setImportPreview([]);setImportOk(false);
+    var reader=new FileReader();
+    reader.onload=function(ev){
+      var text=ev.target.result;
+      // Remove BOM if present
+      if(text.charCodeAt(0)===0xFEFF)text=text.slice(1);
+      var lines=text.split(/\r?\n/).filter(function(l){return l.trim();});
+      if(lines.length<2){setImportErro("Arquivo vazio ou sem dados.");return;}
+      // Detect separator: tab or semicolon or comma
+      var sep="\t";
+      if(lines[0].indexOf(";")>-1)sep=";";
+      else if(lines[0].indexOf(",")>-1&&lines[0].indexOf("\t")===-1)sep=",";
+      var header=lines[0].split(sep).map(function(c){return c.trim().toLowerCase().replace(/[^a-z]/g,"");});
+      // Map columns by name
+      function col(names){
+        for(var i=0;i<names.length;i++){
+          var idx=header.indexOf(names[i]);
+          if(idx>-1)return idx;
+        }
+        return -1;
+      }
+      var iNome=col(["epi","nome","descricao","item"]);
+      var iCod=col(["codigo","cod","code"]);
+      var iCat=col(["categoria","cat","category"]);
+      var iEst=col(["estoque","est","quantidade","qtd","qty","stock"]);
+      var iMin=col(["minimo","min","minimoestoque","minimum"]);
+      var iUn=col(["unidade","un","unit","und"]);
+      var iCa=col(["ca","certificado","certificadodeaprovacao"]);
+      var iVal=col(["validade","val","vencimento","expiracao","expiry"]);
+      var iCod2=col(["cod","codigo"]);
+      if(iNome===-1){setImportErro("Coluna 'EPI' ou 'Nome' não encontrada. Verifique o modelo.");return;}
+      var parsed=[];
+      for(var r=1;r<lines.length;r++){
+        var cols=lines[r].split(sep);
+        var nome=(iNome>-1?cols[iNome]||"":"").trim();
+        if(!nome)continue;
+        // Parse date: dd/mm/yyyy or yyyy-mm-dd
+        var rawVal=iVal>-1?(cols[iVal]||"").trim():"";
+        var valISO="";
+        if(rawVal){
+          var dm=rawVal.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+          var dy=rawVal.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+          if(dm)valISO=dm[3]+"-"+dm[2]+"-"+dm[1];
+          else if(dy)valISO=rawVal;
+        }
+        parsed.push({
+          id:Date.now()+r,
+          nome:nome,
+          cat:iCat>-1?(cols[iCat]||"Outros").trim():"Outros",
+          est:iEst>-1?Math.max(0,parseInt(cols[iEst])||0):0,
+          min:iMin>-1?Math.max(1,parseInt(cols[iMin])||1):1,
+          un:iUn>-1?(cols[iUn]||"un").trim():"un",
+          ca:iCa>-1?(cols[iCa]||"").trim():"",
+          val:valISO,
+          cod:iCod>-1?(cols[iCod]||"").trim():iCod2>-1?(cols[iCod2]||"").trim():"",
+          img:"🪖"
+        });
+      }
+      if(parsed.length===0){setImportErro("Nenhuma linha válida encontrada.");return;}
+      setImportPreview(parsed);
+    };
+    reader.onerror=function(){setImportErro("Erro ao ler o arquivo.");};
+    reader.readAsText(file,"UTF-8");
+  }
+
+  function confirmarImport(modo){
+    if(modo==="substituir"){
+      setEpis(importPreview);
+    } else {
+      setEpis(function(prev){return prev.concat(importPreview);});
+    }
+    setImportOk(true);
+    setImportPreview([]);
+    toast_(""+importPreview.length+" EPIs importados! ✅");
+    setTimeout(function(){setAba("estoque");},1200);
+  }
+
+  function baixarModelo(){
+    var BOM="\uFEFF";
+    var modelo=BOM+"EPI\tCodigo\tCategoria\tEstoque\tMinimo\tUnidade\tCA\tValidade\n"+
+      "Capacete de Segurança\tEPI-001\tCabeça\t15\t10\tun\t31469\t31/12/2026\n"+
+      "Luva de Borracha\tEPI-002\tMãos\t8\t20\tpar\t10918\t30/06/2025\n"+
+      "Mascara PFF2\tEPI-007\tRespiração\t45\t30\tun\t39503\t01/12/2025\n";
+    var blob=new Blob([modelo],{type:"application/vnd.ms-excel;charset=utf-8"});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement("a");
+    a.href=url;a.download="modelo-importacao-epis.xls";
+    document.body.appendChild(a);a.click();
+    document.body.removeChild(a);URL.revokeObjectURL(url);
+    toast_("Modelo baixado! 📄");
+  }
+
   function gerarExcel(){
     var hoje=new Date().toLocaleDateString("pt-BR");
     var BOM="\uFEFF";
@@ -228,6 +326,7 @@ function App(){
     {key:"criticos",label:"🚨 Criticos",badge:criticos.length},
     {key:"novo",label:"➕ Novo EPI"},
     {key:"codigos",label:"🔢 Codigos"},
+
     {key:"compra",label:"📲 Solicitar Compra"},
     {key:"relatorio",label:"📊 Relatorio Excel"},
     {key:"usuarios",label:"👥 Usuarios"},
