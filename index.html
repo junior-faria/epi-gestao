@@ -271,17 +271,15 @@ function App(){
   }
 
   function baixarModelo(){
-    var BOM="\uFEFF";
-    var modelo=BOM+"EPI\tCodigo\tCategoria\tEstoque\tMinimo\tUnidade\tCA\tValidade\n"+
-      "Capacete de Segurança\tEPI-001\tCabeça\t15\t10\tun\t31469\t31/12/2026\n"+
-      "Luva de Borracha\tEPI-002\tMãos\t8\t20\tpar\t10918\t30/06/2025\n"+
-      "Mascara PFF2\tEPI-007\tRespiração\t45\t30\tun\t39503\t01/12/2025\n";
-    var blob=new Blob([modelo],{type:"application/vnd.ms-excel;charset=utf-8"});
-    var url=URL.createObjectURL(blob);
+    var csv="sep=;\r\nEPI;Codigo;Categoria;Estoque;Minimo;Unidade;CA;Validade\r\n"+
+      "Capacete de Seguranca;EPI-001;Cabeca;15;10;un;31469;31/12/2026\r\n"+
+      "Luva de Borracha;EPI-002;Maos;8;20;par;10918;30/06/2025\r\n"+
+      "Mascara PFF2;EPI-007;Respiracao;45;30;un;39503;01/12/2025\r\n";
+    var uri="data:text/csv;charset=utf-8,\uFEFF"+encodeURIComponent(csv);
     var a=document.createElement("a");
-    a.href=url;a.download="modelo-importacao-epis.xls";
+    a.href=uri;a.download="modelo-importacao-epis.csv";
     document.body.appendChild(a);a.click();
-    document.body.removeChild(a);URL.revokeObjectURL(url);
+    document.body.removeChild(a);
     toast_("Modelo baixado! 📄");
   }
 
@@ -354,7 +352,7 @@ function App(){
     {key:"criticos",label:"🚨 Criticos",badge:criticos.length},
     {key:"novo",label:"➕ Novo EPI"},
     {key:"codigos",label:"🔢 Codigos"},
-
+    {key:"importar",label:"📂 Importar CSV"},
     {key:"compra",label:"📲 Solicitar Compra"},
     {key:"relatorio",label:"📊 Relatorio Excel"},
     {key:"usuarios",label:"👥 Usuarios"},
@@ -590,6 +588,85 @@ function App(){
               })
             ),
             h("div",{style:{marginTop:14,background:"#1abc9c11",border:"1px solid #1abc9c33",borderRadius:10,padding:"10px 14px",fontSize:13,color:"#1abc9c"}},"✅ Alterações salvas automaticamente na sessão.")
+          ),
+
+          // IMPORTAR CSV
+          aba==="importar"&&h("div",{style:{maxWidth:720}},
+            h("div",{style:C.card({marginBottom:14})},
+              h("div",{style:{fontWeight:700,fontSize:17,marginBottom:8}},"📂 Importar EPIs via CSV/Excel"),
+              h("div",{style:{fontSize:13,color:"#a8c8a0",marginBottom:16}},"Importe um arquivo CSV com seus EPIs para alimentar o estoque automaticamente. Use o modelo abaixo como referência."),
+
+              // Steps grid
+              h("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:16}},
+                // Step 1 - Download model
+                h("div",{style:{background:"rgba(52,152,219,.1)",border:"1px solid rgba(52,152,219,.3)",borderRadius:12,padding:"14px 16px"}},
+                  h("div",{style:{fontWeight:700,fontSize:13,color:"#3498db",marginBottom:6}},"1️⃣ Baixe o modelo"),
+                  h("div",{style:{fontSize:12,color:"#a8c8a0",marginBottom:10}},"Abra no Excel, preencha com seus EPIs e salve como CSV."),
+                  h(Btn,{onClick:baixarModelo,style:{width:"100%",padding:"10px 0",background:"linear-gradient(90deg,#2980b9,#3498db)",fontSize:13}},"📥 Baixar Modelo CSV")
+                ),
+                // Step 2 - Upload
+                h("div",{style:{background:"rgba(26,188,156,.1)",border:"1px solid rgba(26,188,156,.3)",borderRadius:12,padding:"14px 16px"}},
+                  h("div",{style:{fontWeight:700,fontSize:13,color:"#1abc9c",marginBottom:6}},"2️⃣ Selecione o arquivo"),
+                  h("div",{style:{fontSize:12,color:"#a8c8a0",marginBottom:10}},"Selecione o arquivo .csv preenchido para importar."),
+                  h("label",{style:{display:"block",width:"100%",padding:"10px 0",background:"linear-gradient(90deg,#16a085,#1abc9c)",borderRadius:10,textAlign:"center",fontWeight:700,fontSize:13,cursor:"pointer",color:"#fff"}},
+                    "📂 Selecionar Arquivo CSV",
+                    h("input",{type:"file",accept:".csv,.txt,.tsv",style:{display:"none"},
+                      onChange:handleImportFile})
+                  )
+                )
+              ),
+
+              // Formato esperado
+              h("div",{style:{background:"rgba(20,35,20,.8)",border:"1px solid rgba(80,160,60,.2)",borderRadius:10,padding:"12px 14px",marginBottom:importErro||importOk?12:0}},
+                h("div",{style:{fontSize:12,color:"#a8c8a0",marginBottom:6,fontWeight:700}},"📋 Colunas aceitas no arquivo:"),
+                h("div",{style:{fontSize:11,color:"#a8c8a0",fontFamily:"monospace",lineHeight:1.8}},
+                  "EPI (obrigatorio) ; Codigo ; Categoria ; Estoque ; Minimo ; Unidade ; CA ; Validade (dd/mm/aaaa)"
+                )
+              ),
+
+              // Error
+              importErro&&h("div",{style:{background:"#e74c3c22",border:"1px solid #e74c3c44",borderRadius:10,padding:"10px 14px",color:"#e74c3c",fontSize:13,marginTop:10}},"⚠️ "+importErro),
+              // Success
+              importOk&&h("div",{style:{background:"#1abc9c22",border:"1px solid #1abc9c44",borderRadius:10,padding:"10px 14px",color:"#1abc9c",fontSize:13,marginTop:10}},"✅ Importação concluída! Redirecionando para o estoque...")
+            ),
+
+            // Preview table
+            importPreview.length>0&&h("div",{style:C.card({})},
+              h("div",{style:{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:10}},
+                h("div",null,
+                  h("div",{style:{fontWeight:700,fontSize:15}},"Prévia — "+importPreview.length+" EPI(s) encontrado(s)"),
+                  h("div",{style:{fontSize:12,color:"#a8c8a0",marginTop:2}},"Revise antes de confirmar.")
+                ),
+                h("div",{style:{display:"flex",gap:10,flexWrap:"wrap"}},
+                  h(Btn,{onClick:function(){confirmarImport("adicionar");},
+                    style:{padding:"10px 18px",fontSize:13,background:"linear-gradient(90deg,#1abc9c,#16a085)"}},"➕ Adicionar ao estoque atual"),
+                  h(Btn,{onClick:function(){confirmarImport("substituir");},
+                    style:{padding:"10px 18px",fontSize:13,background:"linear-gradient(90deg,#e74c3c,#c0392b)"}},"🔄 Substituir todo o estoque")
+                )
+              ),
+              h("div",{style:{overflowX:"auto"}},
+                h("table",null,
+                  h("thead",null,h("tr",null,
+                    ["EPI","Código","Categoria","Estoque","Mín","Unidade","CA","Validade"].map(function(t){return h("th",{key:t},t);})
+                  )),
+                  h("tbody",null,
+                    importPreview.map(function(epi,i){
+                      var cr=epi.est<epi.min;
+                      return h("tr",{key:i,style:{background:i%2===0?"rgba(15,25,15,.3)":"transparent"}},
+                        h("td",null,epi.img+" "+epi.nome),
+                        h("td",{style:{color:"#3498db",fontWeight:700}},epi.cod||"—"),
+                        h("td",{style:{color:"#a8c8a0"}},epi.cat),
+                        h("td",{style:{color:cr?"#e74c3c":"#e8eaf0",fontWeight:700}},epi.est),
+                        h("td",{style:{color:"#a8c8a0"}},epi.min),
+                        h("td",{style:{color:"#a8c8a0"}},epi.un),
+                        h("td",{style:{color:"#a8c8a0"}},epi.ca||"—"),
+                        h("td",{style:{color:"#a8c8a0",fontSize:11}},fmtDate(epi.val)||"—")
+                      );
+                    })
+                  )
+                )
+              )
+            )
           ),
 
           // COMPRA
