@@ -218,6 +218,7 @@ var useEffect=React.useEffect;
   var busca=s(""),setBusca=busca[1];busca=busca[0];
   var filtroCat=s(""),setFiltroCat=filtroCat[1];filtroCat=filtroCat[0];
   var filtroStatus=s(""),setFiltroStatus=filtroStatus[1];filtroStatus=filtroStatus[0];
+  var editEpi=s(null),setEditEpi=editEpi[1];editEpi=editEpi[0];
 
   var criticos=epis.filter(function(e){return e.est<e.min;});
 
@@ -317,6 +318,11 @@ var useEffect=React.useEffect;
     if(!confirm("Excluir este EPI?"))return;
     var novo=epis.filter(function(e){return e.id!==id;});
     setEpis(novo);syncNuvem(novo,null);toast_("EPI removido");
+  }
+  function salvarEdicao(){
+    var novo=epis.map(function(e){return e.id===editEpi.id?Object.assign({},editEpi):e;});
+    setEpis(novo);syncNuvem(novo,null);
+    setEditEpi(null);toast_("EPI atualizado! ✅");
   }
   function gerarMsg(){
     var linhas=criticos.map(function(e){
@@ -556,6 +562,7 @@ var useEffect=React.useEffect;
       h("div",{style:C.flex({gap:8})},
         h(Btn,{onClick:function(){setMEnt(epi);setQEnt(1);},style:{flex:1,padding:"8px 0",fontSize:12,background:"linear-gradient(90deg,#1abc9c,#16a085)"}},"📥 Entrada"),
         h(Btn,{onClick:function(){setMRet(epi);setQRet(1);},style:{flex:1,padding:"8px 0",fontSize:12,background:"linear-gradient(90deg,#e74c3c,#c0392b)"}},"📤 Retirada"),
+        h(Btn,{onClick:function(){setEditEpi(Object.assign({},epi));},style:{width:34,padding:"8px 0",background:"transparent",border:"1px solid rgba(52,152,219,.3)",color:"#3498db",fontSize:14}},"✏️"),
         h(Btn,{onClick:function(){excluirEpi(epi.id);},style:{width:34,padding:"8px 0",background:"transparent",border:"1px solid rgba(80,160,60,.2)",color:"#a8c8a0",fontSize:14}},"🗑")
       )
     );
@@ -571,7 +578,59 @@ var useEffect=React.useEffect;
     ),
     // TOAST
     toast&&h("div",{className:"toast",style:{position:"fixed",top:20,right:20,zIndex:999,background:"#1abc9c",color:"#fff",borderRadius:12,padding:"12px 22px",fontWeight:600,fontSize:14,boxShadow:"0 4px 24px #0008"}},toast),
-    // MODAL RETIRADA
+    // MODAL EDITAR EPI
+    editEpi&&h(Modal,{onClose:function(){setEditEpi(null);},borderColor:"#3498db44"},
+      h("div",{style:{textAlign:"center",fontSize:36,marginBottom:4}},editEpi.img),
+      h("div",{style:{textAlign:"center",fontWeight:700,fontSize:16,marginBottom:16,color:"#3498db"}},"✏️ Editar EPI"),
+      h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+        h("div",null,
+          h("label",{className:"lbl"},"Ícone"),
+          h("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:4}},
+            EMJ.map(function(em){return h("button",{key:em,onClick:function(){setEditEpi(function(p){return Object.assign({},p,{img:em});});},
+              style:{width:36,height:36,borderRadius:8,border:editEpi.img===em?"2px solid #3498db":"1px solid #2a2f45",
+                background:editEpi.img===em?"#3498db22":"#252b3d",fontSize:18,cursor:"pointer"}},em);})
+          )
+        ),
+        h("div",null,h("label",{className:"lbl"},"Nome"),
+          h("input",{className:"inp",value:editEpi.nome,onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{nome:e.target.value});});}})
+        ),
+        h("div",{style:{display:"flex",gap:8}},
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"Código"),
+            h("input",{className:"inp",value:editEpi.cod||"",onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{cod:e.target.value});});}})
+          ),
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"CA"),
+            h("input",{className:"inp",value:editEpi.ca||"",onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{ca:e.target.value});});}})
+          )
+        ),
+        h("div",{style:{display:"flex",gap:8}},
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"Categoria"),
+            h("select",{className:"inp",value:editEpi.cat,onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{cat:e.target.value});});}},
+              CATS.map(function(c){return h("option",{key:c,value:c},c);})
+            )
+          ),
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"Unidade"),
+            h("select",{className:"inp",value:editEpi.un,onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{un:e.target.value});});}},
+              UNITS.map(function(u){return h("option",{key:u,value:u},u);})
+            )
+          )
+        ),
+        h("div",{style:{display:"flex",gap:8}},
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"Estoque atual"),
+            h("input",{className:"inp",type:"number",min:0,value:editEpi.est,onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{est:+e.target.value});});}})
+          ),
+          h("div",{style:{flex:1}},h("label",{className:"lbl"},"Mínimo"),
+            h("input",{className:"inp",type:"number",min:1,value:editEpi.min,onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{min:+e.target.value});});}})
+          )
+        ),
+        h("div",null,h("label",{className:"lbl"},"Validade CA"),
+          h("input",{className:"inp",type:"date",value:editEpi.val||"",onChange:function(e){setEditEpi(function(p){return Object.assign({},p,{val:e.target.value});});}})
+        ),
+        h("div",{style:{display:"flex",gap:8,marginTop:4}},
+          h(Btn,{onClick:function(){setEditEpi(null);},style:{flex:1,background:"rgba(20,35,20,.7)",border:"1px solid rgba(80,160,60,.2)",color:"#a8c8a0"}},"Cancelar"),
+          h(Btn,{onClick:salvarEdicao,style:{flex:1,background:"linear-gradient(90deg,#3498db,#2980b9)"}},"💾 Salvar")
+        )
+      )
+    ),
     mRet&&h(Modal,{onClose:function(){setMRet(null);},borderColor:"#e74c3c44"},
       h("div",{style:{textAlign:"center",fontSize:44,marginBottom:8}},mRet.img),
       h("div",{style:{textAlign:"center",fontWeight:700,fontSize:18,marginBottom:4}},mRet.nome),
