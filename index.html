@@ -53,14 +53,98 @@ var UNITS=["un","par","cx","kg","m","rolo"];
 var CORES=["#e74c3c","#3498db","#1abc9c","#f39c12","#8e44ad","#e67e22"];
 
 var EPIS0=[
-  {id:1,nome:"Capacete de Segurança",cat:"Cabeça",est:15,min:10,un:"un",img:"🪖",ca:"31469",val:"2026-12-31",cod:"EPI-001"},
-  {id:2,nome:"Luva de Borracha",cat:"Mãos",est:8,min:20,un:"par",img:"🧤",ca:"10918",val:"2025-06-30",cod:"EPI-002"},
-  {id:3,nome:"Óculos de Proteção",cat:"Olhos",est:4,min:15,un:"un",img:"🥽",ca:"19793",val:"2026-09-15",cod:"EPI-003"},
-  {id:4,nome:"Protetor Auricular",cat:"Audição",est:30,min:25,un:"un",img:"🎧",ca:"5674",val:"2027-03-01",cod:"EPI-004"},
-  {id:5,nome:"Colete Refletivo",cat:"Corpo",est:2,min:8,un:"un",img:"🦺",ca:"41139",val:"2026-05-20",cod:"EPI-005"},
-  {id:6,nome:"Bota de Segurança",cat:"Pés",est:6,min:10,un:"par",img:"👢",ca:"28001",val:"2026-08-10",cod:"EPI-006"},
-  {id:7,nome:"Máscara PFF2",cat:"Respiração",est:45,min:30,un:"un",img:"😷",ca:"39503",val:"2025-12-01",cod:"EPI-007"},
-  {id:8,nome:"Cinto de Segurança",cat:"Queda",est:3,min:5,un:"un",img:"🔗",ca:"12345",val:"2027-01-15",cod:"EPI-008"},
+  {id:1,nome:"OCULOS PANDA TRANSPARENTE TAM UNICO",cat:"Olhos",est:5,min:20,un:"un",img:"🥽",ca:"10344",val:"2029-03-11",cod:"EPI00004"},
+  {id:2,nome:"MASCARA FACIAL COM FILTRO CARVAO ATIVADO",cat:"Respiração",est:49,min:200,un:"un",img:"😷",ca:"38507",val:"2030-01-05",cod:"EPI00009"},
+  {id:3,nome:"BOTINA BICO DE ACO TAM 38",cat:"Pés",est:7,min:20,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00010"},
+  {id:4,nome:"BOTINA BICO DE ACO TAM 39",cat:"Pés",est:22,min:20,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00011"},
+  {id:5,nome:"BOTINA BICO DE ACO TAM 40",cat:"Pés",est:26,min:20,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00012"},
+  {id:6,nome:"BOTINA BICO DE ACO TAM 41",cat:"Pés",est:5,min:20,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00013"},
+  {id:7,nome:"BOTINA BICO DE ACO TAM 42",cat:"Pés",est:14,min:20,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00014"},
+  {id:8,nome:"PROTETOR AUDITIVO PLUG TAM UNICO",cat:"Audição",est:0,min:5,un:"un",img:"🎧",ca:"5745",val:"2028-08-08",cod:"EPI00017"},
+  {id:9,nome:"MACACAO DE SEGURANCA QUIMICO TAM G",cat:"Corpo",est:119,min:100,un:"un",img:"🦺",ca:"20662",val:"2028-04-26",cod:"EPI00020"},
+  {id:10,nome:"RESPIRADOR FACIAL AIR SAFETY TAM UNICO",cat:"Respiração",est:2,min:5,un:"un",img:"😷",ca:"32351",val:"2028-11-07",cod:"EPI00021"},
+  {id:11,nome:"BOTA PVC BICO DE ACO (QUIMICO) TAM 40",cat:"Pés",est:3,min:5,un:"par",img:"👢",ca:"37750",val:"2029-03-13",cod:"EPI00025"},
+  {id:12,nome:"BOTA PVC BICO DE ACO (QUIMICO) TAM 41",cat:"Pés",est:2,min:5,un:"par",img:"👢",ca:"37750",val:"2029-03-13",cod:"EPI00026"},
+  {id:13,nome:"BOTA PVC BICO DE ACO (QUIMICO) TAM 44",cat:"Pés",est:2,min:5,un:"par",img:"👢",ca:"37750",val:"2029-03-13",cod:"EPI00028"},
+  {id:14,nome:"BOTINA BICO DE ACO VULGAFLEX TAM 43",cat:"Pés",est:4,min:5,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00029"},
+  {id:15,nome:"CAPACETE LARANJA TAM UNICO",cat:"Cabeça",est:4,min:15,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00032"},
+  {id:16,nome:"CAPACETE AMARELO TAM UNICO",cat:"Cabeça",est:6,min:10,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00033"},
+  {id:17,nome:"CAPACETE CINZA TAM UNICO",cat:"Cabeça",est:32,min:15,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00038"},
+  {id:18,nome:"CAPACETE VERDE TAM UNICO",cat:"Cabeça",est:6,min:3,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00039"},
+  {id:19,nome:"CAPACETE PRETO TAM UNICO",cat:"Cabeça",est:3,min:5,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00040"},
+  {id:20,nome:"BOTA PVC BICO DE ACO (QUIMICO) TAM 43",cat:"Pés",est:1,min:5,un:"par",img:"👢",ca:"37750",val:"2029-03-13",cod:"EPI00037"},
+  {id:21,nome:"JUGULAR TAM UNICO",cat:"Cabeça",est:31,min:20,un:"un",img:"🪖",ca:"",val:"",cod:"EPI00041"},
+  {id:22,nome:"BOTINA BICO DE ACO TAM 44",cat:"Pés",est:9,min:15,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00048"},
+  {id:23,nome:"RESPIRADOR REUTILIZAVEL SEMIFACIAL TAM M,G,GG",cat:"Respiração",est:2,min:10,un:"un",img:"😷",ca:"4115",val:"2028-04-06",cod:"EPI00049"},
+  {id:24,nome:"MASCARA DE SOLDA",cat:"Olhos",est:1,min:2,un:"un",img:"🥽",ca:"41890",val:"2027-05-09",cod:"EPI00053"},
+  {id:25,nome:"LUVA NITRILICA (QUIMICO) TAM P",cat:"Mãos",est:12,min:5,un:"par",img:"🧤",ca:"25313",val:"2028-10-20",cod:"EPI00054"},
+  {id:26,nome:"LUVA NITRILICA (QUIMICO) TAM M",cat:"Mãos",est:48,min:30,un:"par",img:"🧤",ca:"25313",val:"",cod:"EPI00055"},
+  {id:27,nome:"LUVA NITRILICA (QUIMICO) TAM G",cat:"Mãos",est:48,min:30,un:"par",img:"🧤",ca:"25313",val:"2028-10-20",cod:"EPI00056"},
+  {id:28,nome:"LUVA NITRILICA (QUIMICO) TAM XG",cat:"Mãos",est:36,min:30,un:"par",img:"🧤",ca:"25313",val:"2028-10-20",cod:"EPI00057"},
+  {id:29,nome:"MACACAO DE SEGURANCA QUIMICO TAM XG",cat:"Corpo",est:101,min:100,un:"un",img:"🦺",ca:"20662",val:"",cod:""},
+  {id:30,nome:"MACACAO DE SEGURANCA QUIMICO TAM XXG",cat:"Corpo",est:45,min:150,un:"un",img:"🦺",ca:"20662",val:"",cod:"EPI00059"},
+  {id:31,nome:"MACACAO DE SEGURANCA QUIMICO TAM XXXG",cat:"Corpo",est:100,min:150,un:"un",img:"🦺",ca:"20662",val:"",cod:"EPI00060"},
+  {id:32,nome:"LUVA DE RASPA COM PUNHO DE 20 CM TAM UNICO",cat:"Mãos",est:10,min:20,un:"par",img:"🧤",ca:"46600",val:"2026-09-09",cod:"EPI00061"},
+  {id:33,nome:"MASCARA PFF2 (POEIRA) TAM UNICO",cat:"Respiração",est:479,min:200,un:"un",img:"😷",ca:"45021",val:"2026-07-05",cod:"EPI00063"},
+  {id:34,nome:"LUVA LATEX AMARELA (LIMPEZA) TAM P",cat:"Mãos",est:20,min:20,un:"par",img:"🧤",ca:"15532",val:"2030-09-23",cod:"EPI00064"},
+  {id:35,nome:"LUVA LATEX AMARELA (LIMPEZA) TAM G",cat:"Mãos",est:38,min:30,un:"par",img:"🧤",ca:"15532",val:"2030-09-23",cod:"EPI00065"},
+  {id:36,nome:"LUVA LATEX AMARELA (LIMPEZA) TAM M",cat:"Mãos",est:49,min:30,un:"par",img:"🧤",ca:"15532",val:"2030-09-23",cod:"EPI00066"},
+  {id:37,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 39",cat:"Pés",est:6,min:5,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00068"},
+  {id:38,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 42",cat:"Pés",est:4,min:6,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00070"},
+  {id:39,nome:"CINTURAO DE SEGURANCA COM TALABARTE",cat:"Outros",est:1,min:1,un:"un",img:"🛡️",ca:"35519",val:"2027-03-21",cod:"EPI00073"},
+  {id:40,nome:"LUVA TATIL BLACK SMART TAM G",cat:"Mãos",est:20,min:50,un:"par",img:"🧤",ca:"46932",val:"2026-11-25",cod:"EPI00076"},
+  {id:41,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 44",cat:"Pés",est:3,min:5,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00077"},
+  {id:42,nome:"OCULOS ESCURO TAM UNICO",cat:"Olhos",est:6,min:10,un:"un",img:"🥽",ca:"39860",val:"2027-01-25",cod:"EPI00078"},
+  {id:43,nome:"FILTRO 5N11 TAM UNICO",cat:"Respiração",est:33,min:30,un:"par",img:"😷",ca:"4115",val:"2028-04-06",cod:"EPI00079"},
+  {id:44,nome:"BOTINA BICO DE ACO TAM 37",cat:"Pés",est:6,min:10,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00081"},
+  {id:45,nome:"LUVA PARA PROTECAO CONTRA AGENTES MECANICOS TAM G",cat:"Mãos",est:5,min:30,un:"par",img:"🧤",ca:"30916",val:"2030-12-19",cod:"EPI00083"},
+  {id:46,nome:"FILTRO CARTUCHO VAPORES ORGANICOS 6006 (QUIMICO) TAM UNICO",cat:"Respiração",est:1,min:10,un:"par",img:"😷",ca:"4115",val:"2028-04-06",cod:"EPI00085"},
+  {id:47,nome:"RETENTOR 3M CA - TAM UNICO",cat:"Respiração",est:9,min:20,un:"par",img:"😷",ca:"",val:"",cod:"EPI00086"},
+  {id:48,nome:"CAPA DE CHUVA DE COURO",cat:"Outros",est:12,min:10,un:"un",img:"🛡️",ca:"28481",val:"2028-08-15",cod:"EPI00087"},
+  {id:49,nome:"CONJUNTO HERBICIDA TAM P",cat:"Corpo",est:6,min:10,un:"un",img:"🦺",ca:"46230",val:"2026-06-17",cod:"EPI00088"},
+  {id:50,nome:"CONJUNTO HERBICIDA TAM M",cat:"Corpo",est:10,min:20,un:"un",img:"🦺",ca:"46230",val:"2026-07-16",cod:"EPI00089"},
+  {id:51,nome:"CONJUNTO HERBICIDA TAM G",cat:"Corpo",est:9,min:20,un:"un",img:"🦺",ca:"46230",val:"2026-07-16",cod:"EPI00090"},
+  {id:52,nome:"CAMISA PLASTICA TRANSPARENTE - 2",cat:"Corpo",est:33,min:40,un:"un",img:"🦺",ca:"30355",val:"2027-02-14",cod:"EPI00091"},
+  {id:53,nome:"CALCA PLASTICA TRANSPARENTE - 1",cat:"Corpo",est:33,min:40,un:"un",img:"🦺",ca:"30355",val:"2027-02-14",cod:"EPI00092"},
+  {id:54,nome:"PE PLASTICO TRANSPARENTE - 3 TAM UNICO",cat:"Pés",est:40,min:40,un:"un",img:"👢",ca:"30355",val:"2027-02-14",cod:"EPI00093"},
+  {id:55,nome:"MASCARA PFF2 CARVAO (QUIMICO) TAM UNICO",cat:"Respiração",est:478,min:200,un:"un",img:"😷",ca:"38507",val:"2030-01-05",cod:"EPI00094"},
+  {id:56,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 38",cat:"Pés",est:1,min:4,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00096"},
+  {id:57,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 43",cat:"Pés",est:5,min:5,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00098"},
+  {id:58,nome:"CAPACETE AZUL TAM UNICO",cat:"Cabeça",est:10,min:10,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00099"},
+  {id:59,nome:"BOTA PVC BICO (QUIMICO) TAM 39",cat:"Pés",est:2,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00100"},
+  {id:60,nome:"BOTA PVC BICO (QUIMICO) TAM 40",cat:"Pés",est:1,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00101"},
+  {id:61,nome:"BOTA PVC BICO (QUIMICO) TAM 41",cat:"Pés",est:2,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00102"},
+  {id:62,nome:"BOTA PVC PRETA (QUIMICO) TAM 42",cat:"Pés",est:1,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00103"},
+  {id:63,nome:"BOTA PVC PRETA (QUIMICO) TAM 43",cat:"Pés",est:1,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00104"},
+  {id:64,nome:"BOTINA BICO DE ACO TAM 35",cat:"Pés",est:1,min:2,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:"EPI00105"},
+  {id:65,nome:"BOTA PVC PRETA (QUIMICO) TAM 44",cat:"Pés",est:2,min:5,un:"par",img:"👢",ca:"50008",val:"2028-11-06",cod:"EPI00107"},
+  {id:66,nome:"BOTINA BICO DE ACO TAM 34",cat:"Pés",est:1,min:1,un:"par",img:"👢",ca:"43339",val:"2028-08-18",cod:""},
+  {id:67,nome:"BOTA PVC SOLADO AMARELO (LIMPEZA) TAM 40",cat:"Pés",est:4,min:4,un:"par",img:"👢",ca:"43107",val:"2029-07-24",cod:"EPI00109"},
+  {id:68,nome:"CALCA MANUTENCAO TAM 44",cat:"Corpo",est:7,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00112"},
+  {id:69,nome:"CALCA PRODUCAO TAM 42",cat:"Corpo",est:30,min:30,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00114"},
+  {id:70,nome:"CALCA PRODUCAO TAM 44",cat:"Corpo",est:10,min:30,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00115"},
+  {id:71,nome:"CALCA PRODUCAO TAM 46",cat:"Corpo",est:10,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00116"},
+  {id:72,nome:"CALCA PRODUCAO TAM 48",cat:"Corpo",est:5,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00117"},
+  {id:73,nome:"CALCA PRODUCAO TAM 50",cat:"Corpo",est:7,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00118"},
+  {id:74,nome:"CALCA PRODUCAO TAM 52",cat:"Corpo",est:2,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00119"},
+  {id:75,nome:"CAMISA MANGA CURTA TAM P",cat:"Corpo",est:9,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00121"},
+  {id:76,nome:"CAMISA MANGA CURTA TAM M",cat:"Corpo",est:50,min:50,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00122"},
+  {id:77,nome:"CAMISA MANGA CURTA TAM G",cat:"Corpo",est:77,min:70,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00123"},
+  {id:78,nome:"CAMISA MANGA CURTA TAM GG",cat:"Corpo",est:50,min:50,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00124"},
+  {id:79,nome:"CAMISA MANGA CURTA TAM XG",cat:"Corpo",est:6,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00125"},
+  {id:80,nome:"CAMISA MANGA LONGA TAM P",cat:"Corpo",est:2,min:10,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00126"},
+  {id:81,nome:"CAMISA MANGA LONGA TAM M",cat:"Corpo",est:43,min:40,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00127"},
+  {id:82,nome:"CAMISA MANGA LONGA TAM G",cat:"Corpo",est:44,min:40,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00128"},
+  {id:83,nome:"CAMISA MANGA LONGA TAM GG",cat:"Corpo",est:44,min:40,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00129"},
+  {id:84,nome:"CAMISA MANGA LONGA TAM EXG",cat:"Corpo",est:5,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00130"},
+  {id:85,nome:"CAPACETE VERMELHO TAM UNICO",cat:"Cabeça",est:0,min:5,un:"un",img:"🪖",ca:"35983",val:"2027-11-12",cod:"EPI00131"},
+  {id:86,nome:"FILTRO XP 100 OVIAG",cat:"Respiração",est:3,min:5,un:"un",img:"😷",ca:"37705",val:"2026-04-12",cod:"EPI00132"},
+  {id:87,nome:"LUVA TATIL EMBORRACHADA TAM M",cat:"Mãos",est:5,min:40,un:"par",img:"🧤",ca:"41076",val:"2027-09-08",cod:"EPI00133"},
+  {id:88,nome:"LUVA TRICOTADA EMBORRACHADA TAM G",cat:"Mãos",est:39,min:50,un:"par",img:"🧤",ca:"34491",val:"2028-12-27",cod:"EPI00134"},
+  {id:89,nome:"AVENTAL DE COURO TAM UNICO",cat:"Corpo",est:2,min:10,un:"un",img:"🦺",ca:"38302",val:"2030-06-23",cod:"EPI00135"},
+  {id:90,nome:"CAMISA MANGA CURTA TAM EXG",cat:"Corpo",est:10,min:20,un:"un",img:"🦺",ca:"",val:"",cod:"EPI00136"},
+  {id:91,nome:"ARANHA TAM UNICO",cat:"Cabeça",est:38,min:30,un:"un",img:"🪖",ca:"",val:"",cod:"EPI00138"},
+  {id:92,nome:"RESPIRADOR MASCARA COM 01 PAR DE CARTUCHOS QUIMICOS PARA VAPORES ORGANICOS",cat:"Respiração",est:4,min:10,un:"un",img:"😷",ca:"4115",val:"2028-04-06",cod:"EPI00144"},
 ];
 var USERS0=[
   {id:1,nome:"Carlos Silva",wpp:"(47) 99100-0001",cargo:"Técnico de Segurança",perfil:"admin",status:"ativo",av:"CS",cor:"#8e44ad"},
@@ -131,6 +215,9 @@ var useEffect=React.useEffect;
   var importPreview=s([]),setImportPreview=importPreview[1];importPreview=importPreview[0];
   var importErro=s(""),setImportErro=importErro[1];importErro=importErro[0];
   var importOk=s(false),setImportOk=importOk[1];importOk=importOk[0];
+  var busca=s(""),setBusca=busca[1];busca=busca[0];
+  var filtroCat=s(""),setFiltroCat=filtroCat[1];filtroCat=filtroCat[0];
+  var filtroStatus=s(""),setFiltroStatus=filtroStatus[1];filtroStatus=filtroStatus[0];
 
   var criticos=epis.filter(function(e){return e.est<e.min;});
 
@@ -433,6 +520,7 @@ var useEffect=React.useEffect;
     {key:"estoque",label:"📋 Estoque"},
     {key:"entrada",label:"📥 Entrada"},
     {key:"criticos",label:"🚨 Criticos",badge:criticos.length},
+    {key:"pesquisa",label:"🔍 Pesquisar EPI"},
     {key:"novo",label:"➕ Novo EPI"},
     {key:"codigos",label:"🔢 Codigos"},
     {key:"importar",label:"📂 Importar CSV"},
@@ -602,6 +690,111 @@ var useEffect=React.useEffect;
                 );
               })
             )
+          ),
+
+          // PESQUISA
+          aba==="pesquisa"&&h("div",{style:{maxWidth:820}},
+            // Barra de busca e filtros
+            h("div",{style:C.card({marginBottom:14})},
+              h("div",{style:{fontWeight:700,fontSize:17,marginBottom:14}},"🔍 Pesquisar EPI"),
+              h("div",{style:{marginBottom:12}},
+                h("input",{className:"inp",placeholder:"🔍 Digite o nome, código ou CA do EPI...",value:busca,
+                  style:{fontSize:15,padding:"12px 16px"},
+                  onChange:function(e){setBusca(e.target.value);}})
+              ),
+              h("div",{style:C.flex({gap:10,flexWrap:"wrap"})},
+                h("div",{style:{flex:1,minWidth:140}},
+                  h("label",{className:"lbl"},"Categoria"),
+                  h("select",{className:"inp",value:filtroCat,onChange:function(e){setFiltroCat(e.target.value);}},
+                    h("option",{value:""},"Todas as categorias"),
+                    CATS.map(function(c){return h("option",{key:c,value:c},c);})
+                  )
+                ),
+                h("div",{style:{flex:1,minWidth:140}},
+                  h("label",{className:"lbl"},"Status do estoque"),
+                  h("select",{className:"inp",value:filtroStatus,onChange:function(e){setFiltroStatus(e.target.value);}},
+                    h("option",{value:""},"Todos"),
+                    h("option",{value:"critico"},"🔴 Crítico"),
+                    h("option",{value:"ok"},"🟢 OK"),
+                    h("option",{value:"vencido"},"⚠️ Vencido"),
+                    h("option",{value:"vencendo"},"🟡 Vencendo em breve")
+                  )
+                ),
+                h("div",{style:{display:"flex",alignItems:"flex-end"}},
+                  h(Btn,{onClick:function(){setBusca("");setFiltroCat("");setFiltroStatus("");},
+                    style:{padding:"10px 16px",background:"rgba(20,35,20,.7)",border:"1px solid rgba(80,160,60,.2)",color:"#a8c8a0",fontSize:13}},"✕ Limpar")
+                )
+              )
+            ),
+
+            // Resultados
+            h("div",null,function(){
+              var termo=busca.toLowerCase().trim();
+              var resultado=epis.filter(function(e){
+                // Filtro texto
+                var ok=true;
+                if(termo){
+                  ok=(e.nome.toLowerCase().indexOf(termo)>-1)||
+                     (e.cod&&e.cod.toLowerCase().indexOf(termo)>-1)||
+                     (e.ca&&e.ca.toLowerCase().indexOf(termo)>-1)||
+                     (e.cat.toLowerCase().indexOf(termo)>-1);
+                }
+                // Filtro categoria
+                if(ok&&filtroCat)ok=e.cat===filtroCat;
+                // Filtro status
+                if(ok&&filtroStatus){
+                  var cr=e.est<e.min;
+                  var sv=svStatus(e.val);
+                  if(filtroStatus==="critico")ok=cr;
+                  else if(filtroStatus==="ok")ok=!cr;
+                  else if(filtroStatus==="vencido")ok=sv&&sv.label==="VENCIDO";
+                  else if(filtroStatus==="vencendo")ok=sv&&sv.label!=="VENCIDO"&&sv.cor==="#f39c12";
+                }
+                return ok;
+              });
+
+              if(resultado.length===0){
+                return h("div",{style:{textAlign:"center",padding:"50px 0",color:"#a8c8a0"}},
+                  h("div",{style:{fontSize:48,marginBottom:12}},"🔍"),
+                  h("div",{style:{fontSize:16,fontWeight:600}},"Nenhum EPI encontrado"),
+                  h("div",{style:{fontSize:13,marginTop:6}},"Tente outros termos ou limpe os filtros")
+                );
+              }
+
+              return h("div",null,
+                h("div",{style:{fontSize:12,color:"#a8c8a0",marginBottom:10,fontWeight:600}},
+                  resultado.length+" EPI(s) encontrado(s)"+(termo?" para \""+busca+"\"":" ")
+                ),
+                h("div",{style:{display:"flex",flexDirection:"column",gap:10}},
+                  resultado.map(function(epi){
+                    var cr=epi.est<epi.min,sv=svStatus(epi.val),p=pct(epi),cb=corBar(epi);
+                    return h("div",{key:epi.id,style:C.card({display:"flex",alignItems:"center",gap:14,border:cr?"1px solid #e74c3c55":"1px solid rgba(80,160,60,.15)",flexWrap:"wrap"})},
+                      h("div",{style:{fontSize:28,width:50,height:50,borderRadius:12,background:"rgba(20,35,20,.7)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}},epi.img),
+                      h("div",{style:{flex:1,minWidth:180}},
+                        h("div",{style:{fontWeight:700,fontSize:15,marginBottom:2}},epi.nome),
+                        h("div",{style:{fontSize:11,color:"#a8c8a0",marginBottom:6}},epi.cat),
+                        h("div",{style:C.flex({flexWrap:"wrap",gap:6,marginBottom:6})},
+                          epi.cod&&h("span",{style:{fontSize:11,borderRadius:6,padding:"2px 8px",fontWeight:700,background:"rgba(52,152,219,.15)",color:"#3498db",border:"1px solid rgba(52,152,219,.3)"}},"🔢 "+epi.cod),
+                          epi.ca&&h("span",{style:{fontSize:11,borderRadius:6,padding:"2px 8px",background:"rgba(30,50,30,.8)",color:"#a8c8a0",border:"1px solid rgba(80,160,60,.2)"}},"CA "+epi.ca),
+                          h("span",{style:{fontSize:11,borderRadius:6,padding:"2px 8px",background:cr?"#e74c3c22":"#1abc9c22",color:cr?"#e74c3c":"#1abc9c",fontWeight:700}},cr?"🔴 CRÍTICO":"🟢 OK"),
+                          sv&&h("span",{style:C.tag(sv.cor)},"📅 "+fmtDate(epi.val)+" - "+sv.label)
+                        ),
+                        h("div",{style:{display:"flex",alignItems:"center",gap:8}},
+                          h("div",{style:{flex:1,background:"rgba(20,35,20,.7)",borderRadius:99,height:6,overflow:"hidden"}},
+                            h("div",{style:{width:p+"%",height:"100%",borderRadius:99,background:"linear-gradient(90deg,"+cb+"aa,"+cb+")"}})
+                          ),
+                          h("span",{style:{fontSize:11,color:"#a8c8a0",whiteSpace:"nowrap"}},epi.est+"/"+epi.min+" "+epi.un)
+                        )
+                      ),
+                      h("div",{style:C.flex({gap:8,flexShrink:0})},
+                        h(Btn,{onClick:function(){setMEnt(epi);setQEnt(1);},style:{padding:"8px 12px",fontSize:12,background:"linear-gradient(90deg,#1abc9c,#16a085)"}},"📥 Entrada"),
+                        h(Btn,{onClick:function(){setMRet(epi);setQRet(1);},style:{padding:"8px 12px",fontSize:12,background:"linear-gradient(90deg,#e74c3c,#c0392b)"}},"📤 Retirada")
+                      )
+                    );
+                  })
+                )
+              );
+            }())
           ),
 
           // NOVO EPI
